@@ -1,0 +1,33 @@
+version: 0.2
+
+cache:
+  paths:
+    - '/root/.m2/**/*'
+
+env:
+  git-credential-helper: yes
+
+phases:
+  install:
+
+    runtime-versions:
+      java: corretto11 
+    
+    commands:
+      # uninstall awscli 1: it's possible that a cache docker image of the last run is used
+      - aws --version
+      - pip uninstall -y awscli  
+      
+      # install awscli 2
+      - curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+      - unzip -q awscliv2.zip
+      - ./aws/install --update
+      - aws --version
+      - java -version
+
+  build:
+    commands:
+
+      # submodules MUST use https (no ssh) to be used in CodePipeline
+      - git submodule update --init --recursive
+      - ls -lias
